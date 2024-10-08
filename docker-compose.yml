@@ -1,0 +1,36 @@
+services:
+  broker:
+#    command: tail -f /dev/null
+    container_name: broker
+    build:
+      dockerfile: ./docker/mosquitto/Dockerfile
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./docker/mosquitto/config:/mosquitto/config:rw
+      - ./docker/mosquitto/data:/mosquitto/data:rw
+      - ./docker/mosquitto/log:/mosquitto/log:rw
+    networks:
+      helpme:
+
+  api:
+    container_name: api
+    restart: unless-stopped
+    command: bash -c "npm run start"
+#    command: tail -f /dev/null
+    build:
+      context: ./api
+    volumes:
+      - ./api:/var/www/helpme/api
+      - /var/www/helpme/api/node_modules
+    environment:
+      NODE_ENV: dev
+#      ARANGO_USER: ${ARANGO_USER}
+#      ARANGO_PASSWORD: ${ARANGO_PASSWORD}
+#      ARANGO_DB_NAME: ${ARANGO_DB_NAME}
+#      ARANGO_DB_URL: "http://arangodb:8529"
+    networks:
+      helpme:
+
+networks:
+  helpme:
